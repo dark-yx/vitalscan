@@ -15,7 +15,7 @@ const requiredEnvVars = [
   "DB_PASSWORD",
   "DB_NAME",
   "OPENAI_API_KEY",
-  "ASSISTANT_ID"
+  "OPENAI_ASSISTANT_ID"
 ];
 
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -28,10 +28,10 @@ console.log("✅ Variables de entorno cargadas correctamente");
 
 // Configuración de la base de datos
 const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'encuestas_db',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -40,12 +40,12 @@ const dbConfig = {
 // Configuración de OpenAI
 const openaiConfig = {
   apiKey: process.env.OPENAI_API_KEY,
-  assistantId: process.env.ASSISTANT_ID
+  assistantId: process.env.OPENAI_ASSISTANT_ID
 };
 
 // Configuración del servidor
 const serverConfig = {
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || 80,
   host: process.env.HOST || 'localhost'
 };
 
@@ -53,7 +53,10 @@ const serverConfig = {
 const config = {
   db: dbConfig,
   openai: openaiConfig,
-  server: serverConfig
+  server: serverConfig,
+  mongodb: {
+    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/encuestas'
+  }
 };
 
 export { config };
@@ -65,7 +68,7 @@ if (!config.openai.apiKey) {
 }
 
 if (!config.openai.assistantId) {
-  console.error("❌ Error: ASSISTANT_ID no está definido en el archivo .env");
+  console.error("❌ Error: OPENAI_ASSISTANT_ID no está definido en el archivo .env");
   process.exit(1);
 }
 

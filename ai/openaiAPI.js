@@ -21,7 +21,7 @@ if (!ASSISTANT_ID) {
 }
 
 // Función para obtener diagnóstico usando el asistente pre-entrenado
-export async function obtenerDiagnosticoConAsistente(sintomas, peso, estatura, presion, edad, nivel_energia = 5, observaciones = "") {
+export async function obtenerDiagnosticoConAsistente(sintomas, peso, estatura, presion, edad, nivel_energia, observaciones = "") {
   console.log("🤖 Iniciando obtención de diagnóstico usando asistente pre-entrenado...");
   
   // Calcular IMC
@@ -44,7 +44,7 @@ export async function obtenerDiagnosticoConAsistente(sintomas, peso, estatura, p
   1. Estrictamente debes realizar el diagnosito tomando de referencia la informacion de los documentos adjuntos y los datos proporcionados por el usuario.
   2. No inventes nada, solo debes usar la informacion proporcionada, como un experto en nutrición y alimentación saludable.
   3. Analiza las posibles causas y condiciones relacionadas con los síntomas reportados.
-  4. Identifica los factores de riesgos y todo lo que se pueda relacionar con el nivel de salud, nutricion y bienestar del usuario.
+  4. Identifica los factores de riesgos y todo lo que se pueda relacionar con el nivel de bienestar y nutricion del usuario.
 
   Presenta todo en un parrafo resumido, compacto, personalizado, claro y entendible para ${nombre}.
   `;
@@ -86,8 +86,8 @@ export async function obtenerDiagnosticoConAsistente(sintomas, peso, estatura, p
       2. Aborda la importancia de empezar cambios positivos desde el nivel de estilo de vida, nutrición y alimentación.
       3. Aborda lo hábitos alimenticios recomendados, actividades físicas sugeridas y productos de herbalife recomendados.
       4. No debes inventar nada, solo debes usar la informacion proporcionada, como un experto en nutrición y alimentación saludable.
-      5. Debes recomendar los productos herbalife especificos que sean necesarios para el usuario, no debes recomendar todos los productos de herbalife, y solo los que tienes en los documentos adjuntos, con sus precios correspondientes.
-      6. La recomendacion debe generar fomo e incentivar la compra de los productos herbalife, no debes ser ambiguo, debes ser claro y directo.
+      5. Debes recomendar productos herbalife especificos para la necesidad del encuestado, con sus respectivos precios y solo los que tienes en los documentos adjuntos.
+      6. La recomendacion debe generar fomo e incentivar la compra de productos herbalife, no debes ser ambiguo, debes ser claro y directo.
 
   Presenta todo en un parrafo resumido, compacto, personalizado, claro y entendible para ${nombre}.
       `;
@@ -144,9 +144,9 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
   console.log(`  → IMC calculado: ${imc.toFixed(2)}`);
 
   const promptDiagnostico = `
-  Como experto en bienestar y nutrición, analiza los siguientes datos del paciente y proporciona un diagnóstico detallado en formato de párrafo continuo:
+  Como experto en bienestar y nutrición, analiza los siguientes datos del encuestado y proporciona un diagnóstico detallado en formato de párrafo continuo:
 
-  **Datos del Paciente:**
+  **Datos del Encuestado:**
   - Edad: ${edad} años
   - Peso: ${peso} kg
   - Estatura: ${estatura} m
@@ -170,7 +170,7 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
   - No uses viñetas ni listas
   - No uses títulos ni subtítulos
   - Asegúrate de que el diagnóstico se complete completamente
-  - Concluye con una recomendación clara sobre la necesidad de consultar a un profesional de la salud
+  - Concluye con una recomendación clara sobre la necesidad de consultar con su couch de bienestar
   - Mantén un tono profesional pero accesible
   - No cortes el texto a mitad de una idea
   `;
@@ -185,7 +185,7 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
         messages: [
           { 
             role: "system", 
-            content: "Eres un experto en bienestar y nutrición especializado en diagnósticos preliminares. Proporciona diagnósticos en formato de párrafo continuo, sin estructuras ni listas. Asegúrate de que cada diagnóstico se complete completamente y concluya con una recomendación clara sobre la necesidad de consultar a un profesional de la salud." 
+            content: "Eres un experto en bienestar y nutrición especializado en diagnósticos preliminares. Proporciona diagnósticos en formato de párrafo continuo, sin estructuras ni listas. Asegúrate de que cada diagnóstico se complete completamente y concluya con una recomendación clara sobre la necesidad de consultar con su couch de bienestar o distribuidor independiente de Herbalife" 
           },
           { 
             role: "user", 
@@ -233,7 +233,7 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
         messages: [
           { 
             role: "system", 
-            content: "Eres un experto en salud, bienestar y Herbalife. Proporciona recomendaciones en formato de párrafo continuo, sin estructuras ni listas. Asegúrate de que cada recomendación se complete completamente y concluya con una nota positiva y motivadora. Incluye recomendaciones específicas de productos Herbalife cuando sea relevante." 
+            content: "Eres un experto en bienestar y Herbalife. Proporciona recomendaciones en formato de párrafo continuo, sin estructuras ni listas. Asegúrate de que cada recomendación se complete completamente y concluya con una nota positiva y motivadora. Incluye recomendaciones específicas de productos Herbalife cuando sea relevante." 
           },
           { 
             role: "user", 

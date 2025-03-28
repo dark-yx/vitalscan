@@ -21,9 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       // Obtener los síntomas seleccionados
       const sintomasCheckboxes = form.querySelectorAll('input[name="sintomas"]:checked');
-      const sintomas = Array.from(sintomasCheckboxes).map(cb => cb.value);
+      const sintomasSeleccionados = Array.from(sintomasCheckboxes).map(cb => cb.value);
 
-      if (sintomas.length === 0) {
+      if (sintomasSeleccionados.length === 0) {
         alert('Por favor, seleccione al menos un síntoma');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Obtener Análisis de Salud';
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         estatura: parseFloat(form.querySelector('#estatura').value),
         presion_arterial: form.querySelector('#presion_arterial').value.trim(),
         nivel_energia: parseInt(form.querySelector('#nivel_energia').value) || 5,
-        sintomas: sintomas,
+        sintomas: sintomasSeleccionados,
         observaciones: form.querySelector('#observaciones').value.trim() || null,
         nombre_encuestador: form.querySelector('#nombre_encuestador')?.value.trim() || null,
         encuestador_id: form.querySelector('#encuestador_id')?.value.trim() || null
@@ -129,23 +129,33 @@ document.addEventListener('DOMContentLoaded', () => {
       // Actualizar síntomas
       const sintomasList = document.getElementById('resultado-sintomas');
       sintomasList.innerHTML = '';
-      data.datosPaciente.sintomas.forEach(sintoma => {
+      // Parsear los síntomas si es un string JSON
+      const sintomasProcesados = typeof data.datosPaciente.sintomas === 'string' 
+        ? JSON.parse(data.datosPaciente.sintomas) 
+        : data.datosPaciente.sintomas;
+      
+      sintomasProcesados.forEach(sintoma => {
         const li = document.createElement('li');
         li.textContent = sintoma;
         sintomasList.appendChild(li);
       });
 
       // Procesar el diagnóstico para eliminar la sección de datos duplicados
-      let diagnostico = data.diagnostico;
+      let diagnostico = data.diagnostico || '';
       // Eliminar la sección de "Datos del Paciente" si existe
       diagnostico = diagnostico.replace(/Datos del Paciente[\s\S]*?(?=\d\.|$)/, '');
 
-      // Actualizar diagnóstico y recomendaciones usando marked
-      const diagnosticoHtml = marked.parse(diagnostico);
-      const recomendacionesHtml = marked.parse(data.recomendaciones);
+      // Actualizar diagnóstico y recomendaciones
+      const diagnosticoElement = document.getElementById('resultado-diagnostico');
+      const recomendacionesElement = document.getElementById('resultado-recomendaciones');
 
-      document.getElementById('resultado-diagnostico').innerHTML = diagnosticoHtml;
-      document.getElementById('resultado-recomendaciones').innerHTML = recomendacionesHtml;
+      if (diagnosticoElement) {
+        diagnosticoElement.innerHTML = diagnostico || 'No se generó un diagnóstico.';
+      }
+
+      if (recomendacionesElement) {
+        recomendacionesElement.innerHTML = data.recomendaciones || 'No se generaron recomendaciones.';
+      }
 
       // Ocultar el loader
       loaderContainer.style.display = 'none';
