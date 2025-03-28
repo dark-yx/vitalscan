@@ -43,7 +43,7 @@ app.use((req, res) => {
 });
 
 // Iniciar servidor
-const PORT = config.port || 80;
+const PORT = config.port || 3000;
 
 const iniciarServidor = async () => {
   try {

@@ -20,117 +20,28 @@ if (!ASSISTANT_ID) {
   console.warn("⚠️ Advertencia: ASSISTANT_ID no definido, se usará el modelo GPT-4o-mini directamente");
 }
 
-// Función para obtener diagnóstico usando el asistente pre-entrenado
-export async function obtenerDiagnosticoConAsistente(sintomas, peso, estatura, presion, edad, nivel_energia, observaciones = "") {
-  console.log("🤖 Iniciando obtención de diagnóstico usando asistente pre-entrenado...");
-  
-  // Calcular IMC
-  const imc = peso / (estatura * estatura);
-  
-  const promptDiagnostico = `
-  Basado en la informacion de los documentos adjuntos y como distribuidor experto en bienestar, nutrición y alimentación saludable, analiza los siguientes datos del usuario y proporciona un diagnóstico resumido:
-
-  Estos son los datos a analizar:
-  - Edad: ${edad} años,
-  - Peso: ${peso} kg,
-  - Estatura: ${estatura} m,
-  - IMC: ${imc.toFixed(2)},
-  - Presión arterial: ${presion},
-  - Nivel de energía: ${nivel_energia}/10,
-  - Síntomas Reportados: ${sintomas.map(s => `- ${s}`).join('\n')},
-  - Observaciones Adicionales: ${observaciones},
-
-  Para realizar este diagnóstico, sigue los siguientes pasos:
-  1. Estrictamente debes realizar el diagnosito tomando de referencia la informacion de los documentos adjuntos y los datos proporcionados por el usuario.
-  2. No inventes nada, solo debes usar la informacion proporcionada, como un experto en nutrición y alimentación saludable.
-  3. Analiza las posibles causas y condiciones relacionadas con los síntomas reportados.
-  4. Identifica los factores de riesgos y todo lo que se pueda relacionar con el nivel de bienestar y nutricion del usuario.
-
-  Presenta todo en un parrafo resumido, compacto, personalizado, claro y entendible para ${nombre}.
-  `;
-
-  try {
-    // Crear un thread para la conversación
-    const thread = await openai.beta.threads.create();
-    console.log("✅ Thread creado:", thread.id);
-
-    // Obtener diagnóstico
-    await openai.beta.threads.messages.create(thread.id, {
-      role: "user",
-      content: promptDiagnostico
-    });
-
-    const runDiagnostico = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: ASSISTANT_ID
-    });
-
-    // Esperar a que el run se complete
-    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, runDiagnostico.id);
-    while (runStatus.status === "in_progress" || runStatus.status === "queued") {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      runStatus = await openai.beta.threads.runs.retrieve(thread.id, runDiagnostico.id);
-    }
-
-    if (runStatus.status === "completed") {
-      const messages = await openai.beta.threads.messages.list(thread.id);
-      const diagnostico = messages.data[0].content[0].text.value;
-
-      // Obtener recomendaciones
-      const promptRecomendaciones = `
-      Basado en el siguiente diagnóstico, proporciona recomendaciones específicas, personalizadas y accionables para ${nombre}:
-
-      Diagnóstico: ${diagnostico}
-
-      Por favor, considera los siguientes puntos para proporcionar las recomendaciones:
-      1. Debe estar basado estrictamente en el diagnostico y la informacion de los documentos adjuntos.
-      2. Aborda la importancia de empezar cambios positivos desde el nivel de estilo de vida, nutrición y alimentación.
-      3. Aborda lo hábitos alimenticios recomendados, actividades físicas sugeridas y productos de herbalife recomendados.
-      4. No debes inventar nada, solo debes usar la informacion proporcionada, como un experto en nutrición y alimentación saludable.
-      5. Debes recomendar productos herbalife especificos para la necesidad del encuestado, con sus respectivos precios y solo los que tienes en los documentos adjuntos.
-      6. La recomendacion debe generar fomo e incentivar la compra de productos herbalife, no debes ser ambiguo, debes ser claro y directo.
-
-  Presenta todo en un parrafo resumido, compacto, personalizado, claro y entendible para ${nombre}.
-      `;
-
-      await openai.beta.threads.messages.create(thread.id, {
-        role: "user",
-        content: promptRecomendaciones
-      });
-
-      const runRecomendaciones = await openai.beta.threads.runs.create(thread.id, {
-        assistant_id: ASSISTANT_ID
-      });
-
-      runStatus = await openai.beta.threads.runs.retrieve(thread.id, runRecomendaciones.id);
-      while (runStatus.status === "in_progress" || runStatus.status === "queued") {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        runStatus = await openai.beta.threads.runs.retrieve(thread.id, runRecomendaciones.id);
-      }
-
-      if (runStatus.status === "completed") {
-        const messages = await openai.beta.threads.messages.list(thread.id);
-        const recomendaciones = messages.data[0].content[0].text.value;
-
-        // Eliminar el thread
-        await openai.beta.threads.del(thread.id);
-        console.log("✅ Thread eliminado");
-
-        return {
-          diagnostico,
-          recomendaciones
-        };
-      }
-    }
-    throw new Error(`El run no se completó correctamente. Estado: ${runStatus.status}`);
-  } catch (error) {
-    console.error("❌ Error al usar el asistente:", error);
-    throw error;
-  }
-}
-
 // Función principal para obtener diagnóstico
 export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion, pulso, edad, nivel_energia = 5, observaciones = "") {
   console.log("🤖 Iniciando obtención de diagnóstico...");
+  
+  // Validar que los datos sean correctos antes de procesarlos
+  console.log("📊 Validando datos recibidos:");
+  console.log(`  → Edad: ${edad} (${typeof edad})`);
+  console.log(`  → Pulso: ${pulso} (${typeof pulso})`);
+  console.log(`  → Nivel de energía: ${nivel_energia} (${typeof nivel_energia})`);
+
+  if (isNaN(edad) || edad < 0 || edad > 120) {
+    throw new Error("Edad inválida");
+  }
+  if (isNaN(pulso) || pulso < 30 || pulso > 200) {
+    throw new Error("Pulso inválido");
+  }
+  if (isNaN(nivel_energia) || nivel_energia < 1 || nivel_energia > 10) {
+    console.error("❌ Nivel de energía inválido:", nivel_energia);
+    throw new Error("Nivel de energía inválido. Debe estar entre 1 y 10");
+  }
+
+  console.log("✅ Validaciones pasadas correctamente");
   console.log("📊 Datos recibidos para diagnóstico:");
   console.log(`  → Edad: ${edad} años`);
   console.log(`  → Peso: ${peso} kg`);
@@ -172,9 +83,17 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
   - No uses viñetas ni listas
   - No uses títulos ni subtítulos
   - Asegúrate de que el diagnóstico se complete completamente
-  - Concluye con una recomendación clara sobre la necesidad de consultar con su couch de bienestar
+  - Concluye con una recomendación clara sobre la necesidad de consultar con su coach de bienestar
   - Mantén un tono profesional pero accesible
   - No cortes el texto a mitad de una idea
+  - Usa los datos exactos proporcionados, no inventes ni modifiques valores
+  - Asegúrate de usar la edad correcta (${edad} años) y el pulso correcto (${pulso} lpm)
+  - El nivel de energía es ${nivel_energia}/10, no lo confundas con la edad
+  - No uses el valor de la edad como nivel de energía ni viceversa
+  - Verifica que estés usando los valores correctos:
+    * Edad: ${edad} años
+    * Pulso: ${pulso} lpm
+    * Nivel de energía: ${nivel_energia}/10
   `;
 
   try {
@@ -187,45 +106,39 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
         messages: [
           { 
             role: "system", 
-            content: "Eres un experto en bienestar y nutrición especializado en diagnósticos preliminares. Proporciona diagnósticos en formato de párrafo continuo, sin estructuras ni listas. Asegúrate de que cada diagnóstico se complete completamente y concluya con una recomendación clara sobre la necesidad de consultar con su couch de bienestar o distribuidor independiente de Herbalife" 
+            content: "Eres un experto en bienestar y nutrición especializado en diagnósticos preliminares. Proporciona diagnósticos en formato de párrafo continuo, sin estructuras ni listas. Asegúrate de que cada diagnóstico se complete completamente y concluya con una recomendación clara sobre la necesidad de consultar con su coach de bienestar o distribuidor independiente de Herbalife. Usa los datos exactos proporcionados, no inventes ni modifiques valores." 
           },
           { 
             role: "user", 
             content: promptDiagnostico 
           }
         ],
-        max_tokens: 500,
+        max_tokens: 350,
         temperature: 0.7
       }),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout en la llamada a OpenAI')), 30000)
+        setTimeout(() => reject(new Error("Timeout al obtener diagnóstico")), 30000)
       )
     ]);
 
     const diagnostico = responseDiagnostico.choices[0].message.content;
+    console.log("✅ Respuesta recibida de OpenAI en", Date.now() - startTime, "ms");
 
     // Obtener recomendaciones
     const promptRecomendaciones = `
-    Basado en el siguiente diagnóstico, proporciona recomendaciones específicas y accionables en formato de párrafo continuo:
+    Basado en el siguiente diagnóstico, proporciona recomendaciones específicas, personalizadas y accionables:
 
-    **Diagnóstico:**
-    ${diagnostico}
+    Diagnóstico: ${diagnostico}
 
-    Por favor, proporciona recomendaciones que incluyan:
-    1. Cambios en el estilo de vida
-    2. Hábitos alimenticios recomendados
-    3. Actividad física sugerida
-    4. Suplementos o productos recomendados (si aplica)
+    Por favor, considera los siguientes puntos para proporcionar las recomendaciones:
+    1. Debe estar basado estrictamente en el diagnóstico y la información proporcionada.
+    2. Aborda la importancia de empezar cambios positivos desde el nivel de estilo de vida, nutrición y alimentación.
+    3. Aborda los hábitos alimenticios recomendados, actividades físicas sugeridas y productos de Herbalife recomendados.
+    4. No debes inventar nada, solo debes usar la información proporcionada, como un experto en nutrición y alimentación saludable.
+    5. Debes recomendar productos Herbalife específicos para la necesidad del encuestado, solo los que tienes en los documentos adjuntos.
+    6. La recomendación debe generar FOMO e incentivar la compra de productos Herbalife, no debes ser ambiguo, debes ser claro y directo.
 
-    IMPORTANTE:
-    - Escribe todo en un solo párrafo continuo
-    - No uses viñetas ni listas
-    - No uses títulos ni subtítulos
-    - Asegúrate de que las recomendaciones se completen completamente
-    - Mantén un tono motivador y accesible
-    - No cortes el texto a mitad de una idea
-    - Concluye con una nota positiva y motivadora
-    - Incluye recomendaciones específicas de productos Herbalife cuando sea relevante
+    Presenta todo en un párrafo resumido, compacto, personalizado, claro y entendible.
     `;
 
     console.log("📤 Enviando solicitud de recomendaciones a OpenAI...");
@@ -242,7 +155,7 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
             content: promptRecomendaciones 
           }
         ],
-        max_tokens: 500,
+        max_tokens: 350,
         temperature: 0.7
       }),
       new Promise((_, reject) => 

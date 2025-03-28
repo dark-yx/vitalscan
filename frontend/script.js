@@ -42,12 +42,24 @@ document.addEventListener('DOMContentLoaded', () => {
         peso: parseFloat(form.querySelector('#peso').value),
         estatura: parseFloat(form.querySelector('#estatura').value),
         presion_arterial: form.querySelector('#presion_arterial').value.trim(),
-        nivel_energia: parseInt(form.querySelector('#nivel_energia').value) || 5,
+        pulso: parseInt(form.querySelector('#pulso').value),
+        nivel_energia: parseInt(form.querySelector('#nivel_energia').value),
         sintomas: sintomasSeleccionados,
         observaciones: form.querySelector('#observaciones').value.trim() || null,
         nombre_encuestador: form.querySelector('#nombre_encuestador')?.value.trim() || null,
         encuestador_id: form.querySelector('#encuestador_id')?.value.trim() || null
       };
+
+      // Validar datos numéricos
+      if (isNaN(formData.edad) || formData.edad < 0 || formData.edad > 120) {
+        throw new Error("Por favor, ingrese una edad válida");
+      }
+      if (isNaN(formData.pulso) || formData.pulso < 30 || formData.pulso > 200) {
+        throw new Error("Por favor, ingrese un pulso válido");
+      }
+      if (isNaN(formData.nivel_energia) || formData.nivel_energia < 1 || formData.nivel_energia > 10) {
+        throw new Error("Por favor, ingrese un nivel de energía válido entre 1 y 10");
+      }
 
       console.log('Enviando datos:', formData);
 
@@ -107,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('resultado-peso').textContent = data.datosPaciente.peso;
       document.getElementById('resultado-estatura').textContent = data.datosPaciente.estatura;
       document.getElementById('resultado-presion-arterial').textContent = data.datosPaciente.presion_arterial;
+      document.getElementById('resultado-pulso').textContent = data.datosPaciente.pulso;
       document.getElementById('resultado-nivel-energia').textContent = data.datosPaciente.nivel_energia;
 
       // Calcular y mostrar IMC
@@ -235,6 +248,11 @@ function validateField(field) {
     case 'estatura':
       if (value < 0.5 || value > 3) {
         error = 'Por favor, ingrese una estatura válida';
+      }
+      break;
+    case 'pulso':
+      if (value < 30 || value > 200) {
+        error = 'Por favor, ingrese un pulso válido (30-200 lpm)';
       }
       break;
     case 'nivel_energia':

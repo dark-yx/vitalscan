@@ -14,6 +14,7 @@ export const procesarEncuesta = async (req, res) => {
       peso,
       estatura,
       presion_arterial,
+      pulso,
       nivel_energia,
       sintomas,
       observaciones,
@@ -28,6 +29,7 @@ export const procesarEncuesta = async (req, res) => {
       peso,
       estatura,
       presion_arterial,
+      pulso,
       edad,
       nivel_energia,
       observaciones
@@ -55,9 +57,9 @@ export const procesarEncuesta = async (req, res) => {
     const encuestaResult = await ejecutarConsulta(
       `INSERT INTO encuestas (
         usuario_id, nombre_encuestado, telefono, correo, edad, peso, 
-        estatura, presion_arterial, nivel_energia, sintomas, observaciones,
-        nombre_encuestador, encuestador_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        estatura, presion_arterial, pulso, nivel_energia, sintomas, observaciones,
+        nombre_encuestador, encuestador_id, fecha
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         usuario_id,
         `${nombre} ${apellido}`,
@@ -67,6 +69,7 @@ export const procesarEncuesta = async (req, res) => {
         peso,
         estatura,
         presion_arterial,
+        pulso,
         nivel_energia,
         JSON.stringify(sintomas),
         observaciones,
@@ -100,6 +103,7 @@ export const procesarEncuesta = async (req, res) => {
         peso,
         estatura,
         presion_arterial,
+        pulso,
         nivel_energia,
         sintomas: JSON.stringify(sintomas),
         observaciones,
@@ -247,7 +251,7 @@ export const testGuardadoDB = async (req, res) => {
     const [encuestaResult] = await pool.query(
       `INSERT INTO encuestas (
         usuario_id, nombre_encuestado, telefono, correo, edad, peso, 
-        estatura, presion_arterial, nivel_energia, sintomas, observaciones,
+        estatura, presion_arterial, pulso, nivel_energia, sintomas, observaciones,
         nombre_encuestador, encuestador_id
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
@@ -259,6 +263,7 @@ export const testGuardadoDB = async (req, res) => {
         datosPrueba.peso,
         datosPrueba.estatura,
         datosPrueba.presion_arterial,
+        datosPrueba.pulso,
         datosPrueba.nivel_energia,
         JSON.stringify(datosPrueba.sintomas),
         datosPrueba.observaciones,

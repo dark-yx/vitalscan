@@ -1,4 +1,5 @@
 import { obtenerDiagnosticoOpenAI } from "../ai/openaiAPI.js";
+import { pool, ejecutarConsulta } from "../backend/db.js";
 
 export const submitSurvey = async (req, res) => {
   console.log("📝 Recibida nueva solicitud de encuesta");
@@ -7,7 +8,7 @@ export const submitSurvey = async (req, res) => {
     // Validar campos requeridos
     const camposRequeridos = [
       'nombre', 'apellido', 'identificacion', 'telefono', 'correo',
-      'edad', 'peso', 'estatura', 'sintomas'
+      'edad', 'peso', 'estatura', 'presion_arterial', 'pulso', 'nivel_energia', 'sintomas'
     ];
 
     const camposFaltantes = camposRequeridos.filter(campo => !req.body[campo]);
@@ -20,31 +21,114 @@ export const submitSurvey = async (req, res) => {
     }
 
     console.log("🤖 Obteniendo diagnóstico con OpenAI...");
+    
+    // Procesar los datos antes de enviarlos
+    const datosProcesados = {
+      sintomas: req.body.sintomas,
+      peso: parseFloat(req.body.peso),
+      estatura: parseFloat(req.body.estatura),
+      presion: req.body.presion_arterial,
+      pulso: parseInt(req.body.pulso),
+      edad: parseInt(req.body.edad),
+      nivel_energia: parseInt(req.body.nivel_energia) || 5,
+      observaciones: req.body.observaciones || ''
+    };
+
+    // Validar datos numéricos
+    if (isNaN(datosProcesados.edad) || datosProcesados.edad < 0 || datosProcesados.edad > 120) {
+      return res.status(400).json({
+        success: false,
+        error: 'Edad inválida'
+      });
+    }
+    if (isNaN(datosProcesados.pulso) || datosProcesados.pulso < 30 || datosProcesados.pulso > 200) {
+      return res.status(400).json({
+        success: false,
+        error: 'Pulso inválido'
+      });
+    }
+    if (isNaN(datosProcesados.nivel_energia) || datosProcesados.nivel_energia < 1 || datosProcesados.nivel_energia > 10) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nivel de energía inválido. Debe estar entre 1 y 10'
+      });
+    }
+
+    console.log("📊 Datos procesados para diagnóstico:", datosProcesados);
+
+    // Obtener diagnóstico de OpenAI
     const diagnosticoResult = await obtenerDiagnosticoOpenAI(
-      req.body.sintomas,
-      req.body.peso,
-      req.body.estatura,
-      req.body.presion_arterial,
-      req.body.pulso,
-      req.body.edad,
-      req.body.nivel_energia || 5,
-      req.body.observaciones || ''
+      datosProcesados.sintomas,
+      datosProcesados.peso,
+      datosProcesados.estatura,
+      datosProcesados.presion,
+      datosProcesados.pulso,
+      datosProcesados.edad,
+      datosProcesados.nivel_energia,
+      datosProcesados.observaciones
     );
     console.log("✅ Diagnóstico obtenido correctamente");
 
-    // Preparar datos del paciente
+    // Crear nuevo usuario
+    console.log("📝 Creando nuevo usuario...");
+    const [usuarioResult] = await pool.query(
+      `INSERT INTO usuarios (nombre, apellido, identificacion, telefono, correo) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [req.body.nombre, req.body.apellido, req.body.identificacion, req.body.telefono, req.body.correo]
+    );
+    const usuario_id = usuarioResult.insertId;
+    console.log("✅ Nuevo usuario creado con ID:", usuario_id);
+
+    // Insertar encuesta
+    console.log("📝 Guardando encuesta...");
+    const [encuestaResult] = await pool.query(
+      `INSERT INTO encuestas (
+        usuario_id, nombre_encuestado, telefono, correo, edad, peso, 
+        estatura, presion_arterial, pulso, nivel_energia, sintomas, observaciones,
+        nombre_encuestador, encuestador_id, fecha
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [
+        usuario_id,
+        `${req.body.nombre} ${req.body.apellido}`,
+        req.body.telefono,
+        req.body.correo,
+        datosProcesados.edad,
+        datosProcesados.peso,
+        datosProcesados.estatura,
+        datosProcesados.presion,
+        datosProcesados.pulso,
+        datosProcesados.nivel_energia,
+        JSON.stringify(datosProcesados.sintomas),
+        datosProcesados.observaciones || null,
+        req.body.nombre_encuestador || null,
+        req.body.encuestador_id || null
+      ]
+    );
+    const encuesta_id = encuestaResult.insertId;
+    console.log("✅ Encuesta guardada con ID:", encuesta_id);
+
+    // Guardar diagnóstico
+    console.log("📝 Guardando diagnóstico...");
+    await pool.query(
+      `INSERT INTO diagnosticos (usuario_id, encuesta_id, diagnostico, recomendaciones) 
+       VALUES (?, ?, ?, ?)`,
+      [usuario_id, encuesta_id, diagnosticoResult.diagnostico, diagnosticoResult.recomendaciones]
+    );
+    console.log("✅ Diagnóstico guardado");
+
+    // Preparar datos del paciente para la respuesta
     const datosPaciente = {
       nombre: req.body.nombre,
       apellido: req.body.apellido,
       identificacion: req.body.identificacion,
       telefono: req.body.telefono,
       correo: req.body.correo,
-      edad: req.body.edad,
-      peso: req.body.peso,
-      estatura: req.body.estatura,
-      presion_arterial: req.body.presion_arterial,
-      pulso: req.body.pulso,
-      nivel_energia: req.body.nivel_energia || 5,
+      edad: datosProcesados.edad,
+      peso: datosProcesados.peso,
+      estatura: datosProcesados.estatura,
+      presion_arterial: datosProcesados.presion,
+      pulso: datosProcesados.pulso,
+      nivel_energia: datosProcesados.nivel_energia,
       sintomas: req.body.sintomas,
       observaciones: req.body.observaciones || null
     };
@@ -62,20 +146,15 @@ export const submitSurvey = async (req, res) => {
       recomendaciones: diagnosticoResult.recomendaciones
     };
 
-    console.log("📤 Enviando respuesta al cliente:", {
-      success: response.success,
-      sessionId: response.sessionId,
-      datosPaciente: response.datosPaciente,
-      diagnosticoLength: response.diagnostico.length,
-      recomendacionesLength: response.recomendaciones.length
-    });
-
+    console.log("📤 Enviando respuesta al cliente");
     res.json(response);
+
   } catch (error) {
     console.error('Error al procesar la encuesta:', error);
     res.status(500).json({
       success: false,
-      error: 'Error al procesar la encuesta'
+      error: 'Error al procesar la encuesta',
+      details: error.message
     });
   }
 };
