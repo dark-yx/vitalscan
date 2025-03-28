@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = {
         nombre: form.querySelector('#nombre').value.trim(),
         apellido: form.querySelector('#apellido').value.trim(),
-        identificacion: form.querySelector('#identificacion').value.trim(),
         telefono: form.querySelector('#telefono').value.trim(),
         correo: form.querySelector('#correo').value.trim(),
         edad: parseInt(form.querySelector('#edad').value),
@@ -110,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Nombre completo:', nombreCompleto);
       
       document.getElementById('resultado-nombre').textContent = nombreCompleto;
-      document.getElementById('resultado-identificacion').textContent = data.datosPaciente.identificacion;
       document.getElementById('resultado-telefono').textContent = data.datosPaciente.telefono;
       document.getElementById('resultado-correo').textContent = data.datosPaciente.correo;
       document.getElementById('resultado-edad').textContent = data.datosPaciente.edad;
@@ -177,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('Datos completos del paciente:', {
         nombre: data.datosPaciente.nombre,
         apellido: data.datosPaciente.apellido,
-        identificacion: data.datosPaciente.identificacion,
         telefono: data.datosPaciente.telefono,
         correo: data.datosPaciente.correo,
         edad: data.datosPaciente.edad,
@@ -218,11 +215,6 @@ function validateField(field) {
     case 'apellido':
       if (value.length < 2) {
         error = 'Debe tener al menos 2 caracteres';
-      }
-      break;
-    case 'identificacion':
-      if (value.length < 5) {
-        error = 'Identificación inválida';
       }
       break;
     case 'correo':
@@ -319,5 +311,25 @@ function isValidPhone(phone) {
 function isValidPressure(pressure) {
   const re = /^\d{2,3}\/\d{2,3}$/;
   return re.test(pressure);
+}
+
+function realizarNuevaEncuesta() {
+  // Ocultar el contenedor de resultados
+  document.getElementById('resultadoContainer').style.display = 'none';
+  
+  // Mostrar el formulario
+  document.querySelector('.container').style.display = 'block';
+  
+  // Limpiar el formulario
+  const form = document.getElementById('encuestaForm');
+  form.reset();
+  
+  // Limpiar cualquier mensaje de error
+  const errorMessages = form.querySelectorAll('.error');
+  errorMessages.forEach(error => error.remove());
+  
+  // Remover la clase invalid de todos los campos
+  const inputs = form.querySelectorAll('input, textarea');
+  inputs.forEach(input => input.classList.remove('invalid'));
 }
   

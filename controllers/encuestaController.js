@@ -7,7 +7,7 @@ export const submitSurvey = async (req, res) => {
   try {
     // Validar campos requeridos
     const camposRequeridos = [
-      'nombre', 'apellido', 'identificacion', 'telefono', 'correo',
+      'nombre', 'apellido', 'telefono', 'correo',
       'edad', 'peso', 'estatura', 'presion_arterial', 'pulso', 'nivel_energia', 'sintomas'
     ];
 
@@ -72,9 +72,9 @@ export const submitSurvey = async (req, res) => {
     // Crear nuevo usuario
     console.log("📝 Creando nuevo usuario...");
     const [usuarioResult] = await pool.query(
-      `INSERT INTO usuarios (nombre, apellido, identificacion, telefono, correo) 
-       VALUES (?, ?, ?, ?, ?)`,
-      [req.body.nombre, req.body.apellido, req.body.identificacion, req.body.telefono, req.body.correo]
+      `INSERT INTO usuarios (nombre, apellido, telefono, correo) 
+       VALUES (?, ?, ?, ?)`,
+      [req.body.nombre, req.body.apellido, req.body.telefono, req.body.correo]
     );
     const usuario_id = usuarioResult.insertId;
     console.log("✅ Nuevo usuario creado con ID:", usuario_id);
@@ -120,7 +120,6 @@ export const submitSurvey = async (req, res) => {
     const datosPaciente = {
       nombre: req.body.nombre,
       apellido: req.body.apellido,
-      identificacion: req.body.identificacion,
       telefono: req.body.telefono,
       correo: req.body.correo,
       edad: datosProcesados.edad,

@@ -363,7 +363,6 @@ fieldset {
 
 /* Asegurar que los datos se muestren correctamente */
 #resultado-nombre,
-#resultado-identificacion,
 #resultado-telefono,
 #resultado-correo,
 #resultado-edad,
@@ -407,6 +406,44 @@ fieldset {
   gap: 1rem;
   justify-content: center;
   margin-top: 2rem;
+  align-items: center;
+}
+
+.nueva-encuesta-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.nueva-encuesta-btn:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.descargar-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 250px;
+  font-weight: 500;
+}
+
+.descargar-btn:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Estilos para el botón de WhatsApp */

@@ -7,7 +7,6 @@ export const procesarEncuesta = async (req, res) => {
     const {
       nombre,
       apellido,
-      identificacion,
       telefono,
       correo,
       edad,
@@ -41,9 +40,9 @@ export const procesarEncuesta = async (req, res) => {
     let usuario_id;
     try {
       const usuarioResult = await ejecutarConsulta(
-        `INSERT INTO usuarios (nombre, apellido, identificacion, telefono, correo) 
-         VALUES (?, ?, ?, ?, ?)`,
-        [nombre, apellido, identificacion, telefono, correo]
+        `INSERT INTO usuarios (nombre, apellido, telefono, correo) 
+         VALUES (?, ?, ?, ?)`,
+        [nombre, apellido, telefono, correo]
       );
       usuario_id = usuarioResult.insertId;
       console.log('✅ Nuevo usuario creado con ID:', usuario_id);
@@ -96,7 +95,6 @@ export const procesarEncuesta = async (req, res) => {
       datosPaciente: {
         nombre,
         apellido,
-        identificacion,
         telefono,
         correo,
         edad,
@@ -146,7 +144,6 @@ export const obtenerHistorialEncuestas = async (req, res) => {
         e.*,
         u.nombre,
         u.apellido,
-        u.identificacion,
         d.diagnostico,
         d.recomendaciones
       FROM encuestas e
@@ -177,7 +174,6 @@ export const obtenerEncuestaPorId = async (req, res) => {
         e.*,
         u.nombre,
         u.apellido,
-        u.identificacion,
         d.diagnostico,
         d.recomendaciones
       FROM encuestas e
@@ -212,15 +208,13 @@ export const testGuardadoDB = async (req, res) => {
   try {
     console.log('🔄 Iniciando prueba de guardado en la base de datos...');
 
-    // Generar una identificación única usando timestamp
+    // Generar un timestamp para datos únicos
     const timestamp = Date.now();
-    const identificacionUnica = `TEST${timestamp}`;
 
     // Datos de prueba
     const datosPrueba = {
       nombre: 'Usuario',
       apellido: 'Prueba',
-      identificacion: identificacionUnica,
       telefono: `1234567890${timestamp}`,
       correo: `prueba${timestamp}@test.com`,
       edad: 30,
@@ -237,9 +231,9 @@ export const testGuardadoDB = async (req, res) => {
     // Insertar en tabla usuarios
     console.log('📝 Insertando datos en tabla usuarios...');
     const [usuarioResult] = await pool.query(
-      `INSERT INTO usuarios (nombre, apellido, identificacion, telefono, correo) 
-       VALUES (?, ?, ?, ?, ?)`,
-      [datosPrueba.nombre, datosPrueba.apellido, datosPrueba.identificacion, 
+      `INSERT INTO usuarios (nombre, apellido, telefono, correo) 
+       VALUES (?, ?, ?, ?)`,
+      [datosPrueba.nombre, datosPrueba.apellido, 
        datosPrueba.telefono, datosPrueba.correo]
     );
 
@@ -252,8 +246,8 @@ export const testGuardadoDB = async (req, res) => {
       `INSERT INTO encuestas (
         usuario_id, nombre_encuestado, telefono, correo, edad, peso, 
         estatura, presion_arterial, pulso, nivel_energia, sintomas, observaciones,
-        nombre_encuestador, encuestador_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        nombre_encuestador, encuestador_id, fecha
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
       [
         usuario_id,
         `${datosPrueba.nombre} ${datosPrueba.apellido}`,

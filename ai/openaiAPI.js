@@ -113,7 +113,7 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
             content: promptDiagnostico 
           }
         ],
-        max_tokens: 350,
+        max_tokens: 50,
         temperature: 0.7
       }),
       new Promise((_, reject) => 
@@ -155,7 +155,7 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
             content: promptRecomendaciones 
           }
         ],
-        max_tokens: 350,
+        max_tokens: 50,
         temperature: 0.7
       }),
       new Promise((_, reject) => 

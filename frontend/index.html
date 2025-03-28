@@ -159,10 +159,6 @@
           <input type="text" id="apellido" required>
         </div>
         <div class="form-group">
-          <label for="identificacion">Número de Identificación:</label>
-          <input type="text" id="identificacion" required>
-        </div>
-        <div class="form-group">
           <label for="telefono">Teléfono:</label>
           <input type="tel" id="telefono" required>
         </div>
@@ -365,7 +361,6 @@
     <div class="resultado-section">
       <h3>Datos Personales</h3>
       <p><strong>Nombre:</strong> <span id="resultado-nombre"></span></p>
-      <p><strong>Identificación:</strong> <span id="resultado-identificacion"></span></p>
       <p><strong>Teléfono:</strong> <span id="resultado-telefono"></span></p>
       <p><strong>Correo:</strong> <span id="resultado-correo"></span></p>
       <p><strong>Edad:</strong> <span id="resultado-edad"></span></p>
@@ -398,8 +393,8 @@
     </div>
 
     <div class="button-group">
-      <button type="button" class="volver-btn" onclick="volverAEncuesta()">Volver a la Encuesta</button>
-      <button type="button" class="print-btn" onclick="window.print()">Imprimir Resultados</button>
+      <button type="button" class="nueva-encuesta-btn" onclick="realizarNuevaEncuesta()">Realizar Nueva Encuesta</button>
+      <button type="button" class="descargar-btn" onclick="window.print()">Descargar Resultados</button>
     </div>
   </div>
 

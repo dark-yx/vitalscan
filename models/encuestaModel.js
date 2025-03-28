@@ -23,8 +23,8 @@ export async function guardarEncuesta(datos) {
 
     // Verificar si el usuario existe
     const [usuarioExistente] = await connection.execute(
-      'SELECT usuario_id FROM usuarios WHERE identificacion = ?',
-      [datos.identificacion]
+      'SELECT usuario_id FROM usuarios WHERE correo = ?',
+      [datos.correo]
     );
 
     let usuarioId;
@@ -34,8 +34,8 @@ export async function guardarEncuesta(datos) {
     } else {
       // Crear nuevo usuario
       const [resultadoUsuario] = await connection.execute(
-        'INSERT INTO usuarios (nombre, apellido, identificacion, telefono, correo) VALUES (?, ?, ?, ?, ?)',
-        [datos.nombre, datos.apellido, datos.identificacion, datos.telefono, datos.correo]
+        'INSERT INTO usuarios (nombre, apellido, telefono, correo) VALUES (?, ?, ?, ?)',
+        [datos.nombre, datos.apellido, datos.telefono, datos.correo]
       );
       usuarioId = resultadoUsuario.insertId;
       console.log("Nuevo usuario creado, ID:", usuarioId);
