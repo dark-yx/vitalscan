@@ -7,7 +7,7 @@ export const submitSurvey = async (req, res) => {
     // Validar campos requeridos
     const camposRequeridos = [
       'nombre', 'apellido', 'identificacion', 'telefono', 'correo',
-      'edad', 'peso', 'estatura', 'presion_arterial', 'sintomas'
+      'edad', 'peso', 'estatura', 'sintomas'
     ];
 
     const camposFaltantes = camposRequeridos.filter(campo => !req.body[campo]);
@@ -25,6 +25,7 @@ export const submitSurvey = async (req, res) => {
       req.body.peso,
       req.body.estatura,
       req.body.presion_arterial,
+      req.body.pulso,
       req.body.edad,
       req.body.nivel_energia || 5,
       req.body.observaciones || ''
@@ -42,6 +43,7 @@ export const submitSurvey = async (req, res) => {
       peso: req.body.peso,
       estatura: req.body.estatura,
       presion_arterial: req.body.presion_arterial,
+      pulso: req.body.pulso,
       nivel_energia: req.body.nivel_energia || 5,
       sintomas: req.body.sintomas,
       observaciones: req.body.observaciones || null

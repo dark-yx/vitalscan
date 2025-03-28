@@ -129,13 +129,14 @@ export async function obtenerDiagnosticoConAsistente(sintomas, peso, estatura, p
 }
 
 // Función principal para obtener diagnóstico
-export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion, edad, nivel_energia = 5, observaciones = "") {
+export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion, pulso, edad, nivel_energia = 5, observaciones = "") {
   console.log("🤖 Iniciando obtención de diagnóstico...");
   console.log("📊 Datos recibidos para diagnóstico:");
   console.log(`  → Edad: ${edad} años`);
   console.log(`  → Peso: ${peso} kg`);
   console.log(`  → Estatura: ${estatura} m`);
   console.log(`  → Presión: ${presion}`);
+  console.log(`  → Pulso: ${pulso} lpm`);
   console.log(`  → Nivel de energía: ${nivel_energia}/10`);
   console.log(`  → Síntomas: ${sintomas.join(", ")}`);
   
@@ -152,6 +153,7 @@ export async function obtenerDiagnosticoOpenAI(sintomas, peso, estatura, presion
   - Estatura: ${estatura} m
   - IMC: ${imc.toFixed(2)}
   - Presión arterial: ${presion}
+  - Pulso: ${pulso} lpm
   - Nivel de energía: ${nivel_energia}/10
   
   **Síntomas Reportados:**

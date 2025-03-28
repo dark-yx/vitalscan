@@ -43,7 +43,7 @@ export async function guardarEncuesta(datos) {
 
     // Guardar encuesta
     const [resultadoEncuesta] = await connection.execute(
-      'INSERT INTO encuestas (usuario_id, nombre_encuestado, telefono, correo, edad, peso, estatura, presion_arterial, nivel_energia, sintomas, observaciones, nombre_encuestador, encuestador_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO encuestas (usuario_id, nombre_encuestado, telefono, correo, edad, peso, estatura, presion_arterial, pulso, nivel_energia, sintomas, observaciones, nombre_encuestador, encuestador_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         usuarioId,
         `${datos.nombre} ${datos.apellido}`,
@@ -52,12 +52,13 @@ export async function guardarEncuesta(datos) {
         datos.edad,
         datos.peso,
         datos.estatura,
-        datos.presion_arterial,
+        datos.presion_arterial || null,
+        datos.pulso || null,
         datos.nivel_energia || 5,
         JSON.stringify(datos.sintomas),
-        datos.observaciones || null,
-        datos.nombre_encuestador || null,
-        datos.encuestador_id ? String(datos.encuestador_id) : null
+        datos.observaciones || '',
+        datos.nombre_encuestador || 'No especificado',
+        datos.encuestador_id || 'No especificado'
       ]
     );
     const encuestaId = resultadoEncuesta.insertId;
@@ -167,85 +168,4 @@ export const guardarDiagnostico = async (encuestaId, diagnostico, recomendacione
 
     console.log("💾 Guardando diagnóstico para encuesta:", encuestaId, "y usuario:", usuarioId);
     await connection.execute(
-      `INSERT INTO diagnosticos (usuario_id, encuesta_id, diagnostico, recomendaciones)
-       VALUES (?, ?, ?, ?)`,
-      [usuarioId, encuestaId, diagnostico, recomendaciones]
-    );
-    console.log("✅ Diagnóstico guardado exitosamente");
-  } catch (error) {
-    console.error("❌ Error en guardarDiagnostico:", error);
-    console.error("Stack trace:", error.stack);
-    throw error;
-  } finally {
-    connection.release();
-  }
-};
-
-export const obtenerEncuesta = async (encuestaId) => {
-  console.log("🔍 Iniciando obtenerEncuesta...");
-  const connection = await pool.getConnection();
-  
-  try {
-    console.log("📊 Buscando encuesta con ID:", encuestaId);
-    const [rows] = await connection.execute(
-      `SELECT e.*, u.nombre, u.apellido, u.identificacion, u.telefono, u.correo
-       FROM encuestas e
-       JOIN usuarios u ON e.usuario_id = u.usuario_id
-       WHERE e.id = ?`,
-      [encuestaId]
-    );
-
-    if (rows.length === 0) {
-      console.error("❌ No se encontró la encuesta");
-      throw new Error('Encuesta no encontrada');
-    }
-
-    const encuesta = rows[0];
-    try {
-      encuesta.sintomas = JSON.parse(encuesta.sintomas);
-    } catch (e) {
-      console.warn("⚠️ Error al parsear los síntomas JSON:", e);
-      encuesta.sintomas = [];
-    }
-    console.log("✅ Encuesta encontrada y procesada");
-
-    return encuesta;
-  } catch (error) {
-    console.error("❌ Error en obtenerEncuesta:", error);
-    console.error("Stack trace:", error.stack);
-    throw error;
-  } finally {
-    connection.release();
-  }
-};
-
-export const obtenerDiagnostico = async (encuestaId) => {
-  console.log("🔍 Iniciando obtenerDiagnostico...");
-  const connection = await pool.getConnection();
-  
-  try {
-    console.log("📊 Buscando diagnóstico para encuesta ID:", encuestaId);
-    const [rows] = await connection.execute(
-      `SELECT d.*, u.nombre, u.apellido, u.identificacion
-       FROM diagnosticos d
-       JOIN encuestas e ON d.encuesta_id = e.id
-       JOIN usuarios u ON d.usuario_id = u.usuario_id
-       WHERE d.encuesta_id = ?`,
-      [encuestaId]
-    );
-    
-    if (rows.length === 0) {
-      console.log("⚠️ No se encontró diagnóstico para la encuesta ID:", encuestaId);
-      return null;
-    }
-    
-    console.log("✅ Diagnóstico encontrado");
-    return rows[0];
-  } catch (error) {
-    console.error("❌ Error en obtenerDiagnostico:", error);
-    console.error("Stack trace:", error.stack);
-    throw error;
-  } finally {
-    connection.release();
-  }
-};
+      `
