@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encuesta de Salud y Bienestar</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    .resultado-container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    .resultado-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--primary-color);
+    }
+
+    .resultado-section {
+      margin-bottom: 2rem;
+    }
+
+    .resultado-section h3 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .diagnostico {
+      background-color: #f8f9fa;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .recomendaciones {
+      background-color: #e8f5e9;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .recomendaciones ul {
+      padding-left: 1.5rem;
+    }
+
+    .recomendaciones li {
+      margin-bottom: 0.5rem;
+    }
+
+    .volver-btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background-color: var(--primary-color);
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-top: 2rem;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .volver-btn:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .print-btn {
+      display: inline-block;
+      padding: 0.8rem 1.5rem;
+      background-color: #6c757d;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-top: 2rem;
+      margin-left: 1rem;
+      transition: background-color 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .print-btn:hover {
+      background-color: #5a6268;
+    }
+
+    .button-group {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    @media print {
+      .volver-btn, .print-btn {
+        display: none;
+      }
+
+      .resultado-container {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+      }
+    }
+
+    .markdown-content {
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3 {
+      color: #2c3e50;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+      padding-left: 2em;
+      margin: 1em 0;
+    }
+
+    .markdown-content li {
+      margin: 0.5em 0;
+    }
+
+    .markdown-content p {
+      margin: 1em 0;
+    }
+
+    .markdown-content strong {
+      color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+  <div class="loader-container" id="loaderContainer">
+    <div class="loader"></div>
+    <div class="loader-text">Tu diagnóstico se está generando, por favor espera...</div>
+  </div>
+
+  <div class="container">
+    <h2>Encuesta de Nutrición y Bienestar</h2>
+    <form id="encuestaForm">
+      <!-- Datos Personales -->
+      <fieldset>
+        <legend>Datos Personales</legend>
+        <div class="form-group">
+          <label for="nombre">Nombre:</label>
+          <input type="text" id="nombre" required>
+        </div>
+        <div class="form-group">
+          <label for="apellido">Apellido:</label>
+          <input type="text" id="apellido" required>
+        </div>
+        <div class="form-group">
+          <label for="identificacion">Número de Identificación:</label>
+          <input type="text" id="identificacion" required>
+        </div>
+        <div class="form-group">
+          <label for="telefono">Teléfono:</label>
+          <input type="tel" id="telefono" required>
+        </div>
+        <div class="form-group">
+          <label for="correo">Correo Electrónico:</label>
+          <input type="email" id="correo" required>
+        </div>
+      </fieldset>
+
+      <!-- Datos de Salud -->
+      <fieldset>
+        <legend>Datos del Encuestado</legend>
+        <div class="form-group">
+          <label for="edad">Edad:</label>
+          <input type="number" id="edad" required>
+        </div>
+        <div class="form-group">
+          <label for="peso">Peso (kg):</label>
+          <input type="number" step="0.1" id="peso" required>
+        </div>
+        <div class="form-group">
+          <label for="estatura">Estatura (m):</label>
+          <input type="number" step="0.01" id="estatura" required>
+        </div>
+        <div class="form-group">
+          <label for="presion_arterial">Presión Arterial Promedio:</label>
+          <input type="text" id="presion_arterial" placeholder="Ej: 120/80" required>
+        </div>
+        <div class="form-group">
+          <label for="nivel_energia">Nivel de Energía (1-10):</label>
+          <input type="number" id="nivel_energia" min="1" max="10" required>
+        </div>
+      </fieldset>
+
+      <!-- Síntomas -->
+      <fieldset>
+        <legend>Síntomas</legend>
+        <div class="sintomas-grid">
+          <div class="sintoma-item">
+            <input type="checkbox" id="s1" name="sintomas" value="Fatiga">
+            <label for="s1">Fatiga</label>
+          </div>
+          <div class="sintoma-item">
+            <input type="checkbox" id="s2" name="sintomas" value="Dolor de cabeza">
+            <label for="s2">Dolor de cabeza</label>
+          </div>
+          <div class="sintoma-item">
+            <input type="checkbox" id="s3" name="sintomas" value="Insomnio">
+            <label for="s3">Insomnio</label>
+          </div>
+          <div class="sintoma-item">
+            <input type="checkbox" id="s4" name="sintomas" value="Ansiedad">
+            <label for="s4">Ansiedad</label>
+          </div>
+          <div class="sintoma-item">
+            <input type="checkbox" id="s5" name="sintomas" value="Depresión">
+            <label for="s5">Depresión</label>
+          </div>
+          <div class="sintoma-item">
+            <input type="checkbox" id="s6" name="sintomas" value="Dolor muscular">
+            <label for="s6">Dolor muscular</label>
+          </div>
+          <div class="sintoma-item">
+            <input type="checkbox" id="s7" name="sintomas" value="Problemas digestivos">
+            <label for="s7">Problemas digestivos</label>
+          </div>
+          <div class="sintoma-item">
+            <input type="checkbox" id="s8" name="sintomas" value="Problemas respiratorios">
+            <label for="s8">Problemas respiratorios</label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Observaciones -->
+      <fieldset>
+        <legend>Observaciones Adicionales</legend>
+        <div class="form-group">
+          <label for="observaciones">Observaciones (opcional):</label>
+          <textarea id="observaciones" name="observaciones" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="nombre_encuestador">Nombre del Encuestador (opcional):</label>
+          <input type="text" id="nombre_encuestador" name="nombre_encuestador">
+        </div>
+
+        <div class="form-group">
+          <label for="encuestador_id">ID del Encuestador (opcional):</label>
+          <input type="text" id="encuestador_id" name="encuestador_id" placeholder="Código">
+        </div>
+      </fieldset>
+
+      <button type="submit" class="submit-btn">Obtener Análisis de Salud</button>
+    </form>
+  </div>
+
+  <div class="resultado-container" id="resultadoContainer">
+    <div class="resultado-header">
+      <h2>Resultado del Análisis de Bienestar</h2>
+      <p>Fecha: <span id="fecha"></span></p>
+    </div>
+
+    <div class="resultado-section">
+      <h3>Datos Personales</h3>
+      <p><strong>Nombre:</strong> <span id="resultado-nombre"></span></p>
+      <p><strong>Identificación:</strong> <span id="resultado-identificacion"></span></p>
+      <p><strong>Teléfono:</strong> <span id="resultado-telefono"></span></p>
+      <p><strong>Correo:</strong> <span id="resultado-correo"></span></p>
+      <p><strong>Edad:</strong> <span id="resultado-edad"></span></p>
+    </div>
+
+    <div class="resultado-section">
+      <h3>Mediciones</h3>
+      <p><strong>Peso (kg):</strong> <span id="resultado-peso"></span></p>
+      <p><strong>Estatura (m):</strong> <span id="resultado-estatura"></span></p>
+      <p><strong>IMC:</strong> <span id="resultado-imc"></span></p>
+      <p><strong>Estado:</strong> <span id="resultado-imc-interpretacion"></span></p>
+      <p><strong>Presión Arterial:</strong> <span id="resultado-presion-arterial"></span></p>
+      <p><strong>Nivel de Energía:</strong> <span id="resultado-nivel-energia"></span></p>
+    </div>
+
+    <div class="resultado-section">
+      <h3>Síntomas Reportados</h3>
+      <ul id="resultado-sintomas" class="sintomas-list"></ul>
+    </div>
+
+    <div class="resultado-section">
+      <h3>Diagnóstico</h3>
+      <div id="resultado-diagnostico" class="diagnostico markdown-content"></div>
+    </div>
+
+    <div class="resultado-section">
+      <h3>Recomendaciones</h3>
+      <div id="resultado-recomendaciones" class="recomendaciones markdown-content"></div>
+    </div>
+
+    <div class="button-group">
+      <button onclick="window.location.reload()" class="volver-btn">Nueva Encuesta</button>
+      <button onclick="window.print()" class="print-btn">Imprimir Resultados</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
