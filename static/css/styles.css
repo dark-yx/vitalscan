@@ -1,0 +1,139 @@
+/* Estilos básicos para la aplicación WellTechFlow */
+:root {
+    --primary-color: #2ecc71; /* Verde esmeralda - color principal */
+    --secondary-color: #3498db; /* Azul tecnológico */
+    --success-color: #27ae60; /* Verde oscuro */
+    --info-color: #2980b9; /* Azul oscuro */
+    --warning-color: #f39c12; /* Naranja */
+    --danger-color: #e74c3c; /* Rojo */
+    --light-color: #f8f9fa; /* Blanco hueso */
+    --dark-color: #2c3e50; /* Azul oscuro/negro */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: var(--light-color);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Header Styles */
+header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    padding: 1rem 0;
+}
+
+/* Footer Styles */
+footer {
+    background-color: var(--dark-color);
+    color: white;
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+/* Form Styles */
+.form-control {
+    margin-bottom: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #27ae60; /* Verde oscuro */
+    border-color: #27ae60;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+    background-color: #2980b9; /* Azul oscuro */
+    border-color: #2980b9;
+}
+
+/* Progress Bar */
+.progress {
+    height: 25px;
+    margin-bottom: 1rem;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+}
+
+/* Card styles */
+.card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    margin-bottom: 2rem;
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+}
+
+/* Animation for loading dots */
+@keyframes dots {
+    0%, 20% { content: ' .'; }
+    40% { content: ' ..'; }
+    60% { content: ' ...'; }
+    80%, 100% { content: ''; }
+}
+
+.loading-dots:after {
+    content: ' .';
+    animation: dots 1.5s steps(5, end) infinite;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.95);
+        opacity: 0.7;
+    }
+}
+
+.pulse-icon {
+    animation: pulse 1.5s infinite;
+}
+
+/* WellTechFlow specific styles */
+.logo-text {
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.logo-text .tech {
+    color: var(--secondary-color);
+}
+
+.logo-text .flow {
+    color: #ffffff; /* Color blanco para mejor contraste */
+}
+
+.welltech-gradient {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+} 

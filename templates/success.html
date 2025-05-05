@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WellTechFlow - Análisis VitalScan Completado</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        .success-icon {
+            font-size: 5rem;
+            color: #2ecc71;
+            margin-bottom: 1.5rem;
+        }
+        .success-container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+        .action-card {
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .action-card:hover {
+            transform: translateY(-5px);
+        }
+        .calendar-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+        }
+        .calendar th, .calendar td {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+        }
+        .calendar th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        .calendar td {
+            cursor: pointer;
+        }
+        .calendar td.disabled {
+            color: #ccc;
+            cursor: default;
+            background-color: #f5f5f5;
+        }
+        .calendar td.selected {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        .calendar td.available-day {
+            background-color: #e0f7fa;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .calendar td.available-day:hover {
+            background-color: #b3e5fc;
+        }
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+        .time-slot {
+            padding: 8px 15px;
+            background-color: #e0f7fa;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #b3e5fc;
+            transition: all 0.2s ease;
+        }
+        .time-slot:hover {
+            background-color: #b3e5fc;
+        }
+        .time-slot.selected {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: #2980b9;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div id="confetti-container" class="confetti-container"></div>
+    
+    <!-- Header -->
+    <header class="welltech-gradient text-white py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="mb-0"><span class="logo-text">Well<span class="tech">Tech</span><span class="flow">Flow</span></span></h1>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0"><i class="fas fa-phone-alt me-2"></i> Contacto: {{ config.get('CONTACT_PHONE', '+1234567890') }}</p>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="py-5">
+        <div class="container">
+            <div class="success-container">
+                <!-- Success Message -->
+                <div class="text-center mb-5">
+                    <i class="fas fa-check-circle success-icon"></i>
+                    <h2 class="display-6 fw-bold mb-3">¡Tu análisis VitalScan está listo!</h2>
+                    <p class="lead">
+                        Nuestra tecnología de IA ha analizado múltiples dimensiones de tu bienestar y 
+                        generado un diagnóstico integral personalizado. A continuación, puedes acceder a tu 
+                        informe completo o programar una consulta con un especialista.
+                    </p>
+                </div>
+                
+                <!-- Actions Cards -->
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="card action-card shadow-sm h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-file-alt fa-3x" style="color: var(--primary-color);"></i>
+                                </div>
+                                <h5 class="card-title">Ver diagnóstico</h5>
+                                <p class="card-text">Consulta tu análisis VitalScan completo en línea.</p>
+                                <a href="{{ url_for('view_report', diagnostico_id=diagnostico_id) }}" class="btn btn-outline-primary mt-2">
+                                    Ver informe <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card action-card shadow-sm h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-download fa-3x" style="color: var(--success-color);"></i>
+                                </div>
+                                <h5 class="card-title">Descargar PDF</h5>
+                                <p class="card-text">Descarga tu informe VitalScan completo en formato PDF.</p>
+                                <a href="{{ url_for('download_report', diagnostico_id=diagnostico_id) }}" class="btn btn-outline-success mt-2">
+                                    Descargar <i class="fas fa-download ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card action-card shadow-sm h-100">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-share-alt fa-3x" style="color: var(--secondary-color);"></i>
+                                </div>
+                                <h5 class="card-title">Compartir</h5>
+                                <p class="card-text">Comparte tu diagnóstico por correo o WhatsApp.</p>
+                                <div class="d-flex justify-content-center gap-2 mt-2">
+                                    <button class="btn btn-outline-info" onclick="shareByEmail()">
+                                        <i class="fas fa-envelope"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" onclick="shareByWhatsApp()">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Schedule a Consultation -->
+                <div class="card shadow-lg border-0 rounded-3 mb-5">
+                    <div class="card-header welltech-gradient text-white py-3">
+                        <h3 class="card-title mb-0">Agenda una consulta con un especialista de WellTechFlow</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="lead mb-4">
+                            Agenda una consulta con uno de nuestros especialistas para revisar tu diagnóstico 
+                            y recibir recomendaciones personalizadas adicionales.
+                        </p>
+                        
+                        <div class="calendar-container">
+                            <h4 class="mb-3">Selecciona una fecha y hora</h4>
+                            
+                            <!-- Date Selection -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Fecha disponible</h5>
+                                    <div class="date-picker mb-4">
+                                        <div class="d-flex flex-wrap">
+                                            {% for date in available_dates %}
+                                            <div class="form-check me-3 mb-2">
+                                                <input class="form-check-input date-option" type="radio" name="selected_date" 
+                                                       id="date_{{ loop.index }}" value="{{ date }}" {% if loop.first %}checked{% endif %}>
+                                                <label class="form-check-label" for="date_{{ loop.index }}">
+                                                    {{ date }}
+                                                </label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h5>Horario disponible</h5>
+                                    <div class="time-slots">
+                                        {% for slot in available_slots %}
+                                        <div class="time-slot" data-time="{{ slot }}">{{ slot }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Form for Additional Info -->
+                            <div class="mt-4">
+                                <div class="mb-3">
+                                    <label for="consultation_notes" class="form-label">Notas adicionales (opcional)</label>
+                                    <textarea class="form-control" id="consultation_notes" rows="3" 
+                                              placeholder="¿Hay algo específico que quieres discutir en la consulta?"></textarea>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <button id="schedule-btn" type="button" class="btn btn-primary btn-lg px-5" disabled>
+                                        Confirmar cita
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Next Steps -->
+                <div class="text-center">
+                    <h4>¿Qué sigue?</h4>
+                    <p>
+                        Te recomendamos revisar tu diagnóstico completo, seguir las recomendaciones personalizadas,
+                        y si tienes dudas, no dudes en contactarnos o agendar una consulta para recibir orientación adicional.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-1"></i> Volver al inicio
+                        </a>
+                        <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                            <i class="fas fa-comment me-1"></i> Danos tu opinión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="feedbackModalLabel">¿Qué te pareció nuestro servicio?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="feedback-form">
+                        <div class="mb-3 text-center">
+                            <div class="rating">
+                                <span class="rating-star" data-value="1"><i class="far fa-star fa-2x"></i></span>
+                                <span class="rating-star" data-value="2"><i class="far fa-star fa-2x"></i></span>
+                                <span class="rating-star" data-value="3"><i class="far fa-star fa-2x"></i></span>
+                                <span class="rating-star" data-value="4"><i class="far fa-star fa-2x"></i></span>
+                                <span class="rating-star" data-value="5"><i class="far fa-star fa-2x"></i></span>
+                            </div>
+                            <input type="hidden" id="rating-value" name="rating" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="feedback-text" class="form-label">Tus comentarios</label>
+                            <textarea class="form-control" id="feedback-text" name="feedback" rows="3" 
+                                      placeholder="¿Qué te gustó? ¿Qué podríamos mejorar?"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="submit-feedback">Enviar comentarios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Schedule Confirmation Modal -->
+    <div class="modal fade" id="scheduleConfirmModal" tabindex="-1" aria-labelledby="scheduleConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleConfirmModalLabel">Confirmar cita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Estás por agendar una consulta con la siguiente información:</p>
+                    <ul>
+                        <li><strong>Fecha:</strong> <span id="confirm-date"></span></li>
+                        <li><strong>Hora:</strong> <span id="confirm-time"></span></li>
+                        <li><strong>Nombre:</strong> {{ diagnostico.nombre }}</li>
+                        <li><strong>Email:</strong> {{ diagnostico.email }}</li>
+                    </ul>
+                    <p>Recibirás un correo electrónico de confirmación con los detalles de tu cita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="confirm-schedule">Confirmar cita</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Schedule Success Modal -->
+    <div class="modal fade" id="scheduleSuccessModal" tabindex="-1" aria-labelledby="scheduleSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="scheduleSuccessModalLabel">¡Cita agendada con éxito!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <i class="fas fa-calendar-check fa-4x text-success mb-3"></i>
+                    <h4>Tu cita ha sido confirmada</h4>
+                    <p>Hemos enviado un correo electrónico con todos los detalles a <strong>{{ diagnostico.email }}</strong>.</p>
+                    <p>También recibirás un recordatorio el día antes de tu cita.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="welltech-gradient text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5><span class="logo-text">Well<span class="tech">Tech</span><span class="flow" style="color: #ffffff;">Flow</span></span></h5>
+                    <p class="mb-0">{{ config.get('BRAND_TAGLINE', 'Transformando el bienestar a través de la tecnología') }}</p>
+                </div>
+                <div class="col-md-4 mb-4 mb-md-0">
+                    <h5>Contacto</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> {{ config.get('CONTACT_EMAIL', 'contacto@welltechflow.com') }}</li>
+                        <li><i class="fas fa-phone me-2"></i> {{ config.get('CONTACT_PHONE', '+1234567890') }}</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> {{ config.get('CONTACT_ADDRESS', 'Quito, Ecuador') }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Síguenos</h5>
+                    <div class="social-links d-flex mb-3">
+                        <a href="{{ config.get('SOCIAL_FACEBOOK', '#') }}" class="text-white me-3"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="{{ config.get('SOCIAL_TWITTER', '#') }}" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="{{ config.get('SOCIAL_INSTAGRAM', '#') }}" class="text-white me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="{{ config.get('SOCIAL_LINKEDIN', '#') }}" class="text-white"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                    </div>
+                    <p class="small">Suscríbete a nuestro boletín para recibir consejos y novedades sobre bienestar integral.</p>
+                </div>
+            </div>
+            <hr class="my-4 opacity-25">
+            <div class="d-flex flex-column flex-md-row justify-content-md-between align-items-center">
+                <p class="mb-2 mb-md-0">&copy; {{ now.year }} {{ config.get('COMPANY_NAME', 'WellTechFlow') }}. Todos los derechos reservados.</p>
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item"><a href="#" class="text-white text-decoration-underline">Políticas de Privacidad</a></li>
+                    <li class="list-inline-item"><a href="#" class="text-white text-decoration-underline">Términos de Uso</a></li>
+                    <li class="list-inline-item"><a href="#" class="text-white text-decoration-underline">Aviso Legal</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Confetti JS -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script>
+        $(document).ready(function() {
+            // Mostrar confeti al cargar la página
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+            
+            // Configurar las estrellas de calificación
+            $('.rating-star').on('click', function() {
+                const value = $(this).data('value');
+                $('#rating-value').val(value);
+                
+                $('.rating-star').each(function() {
+                    const starValue = $(this).data('value');
+                    if (starValue <= value) {
+                        $(this).find('i').removeClass('far').addClass('fas text-warning');
+                    } else {
+                        $(this).find('i').removeClass('fas text-warning').addClass('far');
+                    }
+                });
+            });
+            
+            // Manejar slots de tiempo
+            $('.time-slot').on('click', function() {
+                $('.time-slot').removeClass('selected');
+                $(this).addClass('selected');
+                
+                // Habilitar botón de agendar
+                $('#schedule-btn').prop('disabled', false);
+            });
+            
+            // Manejar botón de agendar
+            $('#schedule-btn').on('click', function() {
+                const selectedDate = $('input[name="selected_date"]:checked').val();
+                const selectedTime = $('.time-slot.selected').data('time');
+                
+                // Actualizar modal de confirmación
+                $('#confirm-date').text(selectedDate);
+                $('#confirm-time').text(selectedTime);
+                
+                // Mostrar modal de confirmación
+                $('#scheduleConfirmModal').modal('show');
+            });
+            
+            // Manejar confirmación de cita
+            $('#confirm-schedule').on('click', function() {
+                const selectedDate = $('input[name="selected_date"]:checked').val();
+                const selectedTime = $('.time-slot.selected').data('time');
+                const notes = $('#consultation_notes').val();
+                
+                // Mostrar spinner en el botón
+                $(this).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...');
+                $(this).prop('disabled', true);
+                
+                // Enviar datos al servidor
+                $.ajax({
+                    url: '/api/schedule',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        diagnostico_id: '{{ diagnostico_id }}',
+                        fecha: selectedDate,
+                        hora: selectedTime,
+                        notas: notes
+                    }),
+                    success: function(response) {
+                        // Cerrar modal de confirmación
+                        $('#scheduleConfirmModal').modal('hide');
+                        
+                        // Restablecer botón
+                        $('#confirm-schedule').html('Confirmar cita');
+                        $('#confirm-schedule').prop('disabled', false);
+                        
+                        // Mostrar modal de éxito
+                        $('#scheduleSuccessModal').modal('show');
+                        
+                        // Lanzar confeti
+                        confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.6 }
+                        });
+                    },
+                    error: function(error) {
+                        // Restablecer botón
+                        $('#confirm-schedule').html('Confirmar cita');
+                        $('#confirm-schedule').prop('disabled', false);
+                        
+                        // Mostrar error
+                        alert('Error al agendar la cita. Por favor intenta nuevamente.');
+                        console.error(error);
+                    }
+                });
+            });
+            
+            // Manejar envío de feedback
+            $('#submit-feedback').on('click', function() {
+                const rating = $('#rating-value').val();
+                const feedback = $('#feedback-text').val();
+                
+                if (rating === '0') {
+                    alert('Por favor, selecciona una calificación antes de enviar tus comentarios.');
+                    return;
+                }
+                
+                // Aquí se puede implementar el envío del feedback
+                alert('¡Gracias por tus comentarios!');
+                $('#feedbackModal').modal('hide');
+            });
+            
+            // Funciones para compartir
+            window.shareByEmail = function() {
+                const subject = encodeURIComponent('Mi diagnóstico de bienestar');
+                const body = encodeURIComponent('Hola,\n\nQuiero compartir contigo mi diagnóstico de bienestar. Puedes verlo aquí:\n\n{{ request.url_root }}view-report/{{ diagnostico_id }}\n\nSaludos!');
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+            };
+            
+            window.shareByWhatsApp = function() {
+                const text = encodeURIComponent('¡Hola! Quiero compartir contigo mi diagnóstico de bienestar. Puedes verlo aquí: {{ request.url_root }}view-report/{{ diagnostico_id }}');
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+            };
+            
+            // Enviar datos a HubSpot de forma silenciosa
+            function submitToHubSpot() {
+                const hsData = {
+                    fields: [
+                        { name: "firstname", value: "{{ diagnostico.nombre }}" },
+                        { name: "lastname", value: "{{ diagnostico.apellido }}" },
+                        { name: "email", value: "{{ diagnostico.email }}" },
+                        { name: "phone", value: "{{ diagnostico.telefono }}" },
+                        { name: "diagnostico_id", value: "{{ diagnostico_id }}" }
+                    ],
+                    context: {
+                        pageUri: window.location.href,
+                        pageName: "Página de éxito del diagnóstico"
+                    }
+                };
+                
+                // Esta función simulada se reemplazaría por el código real de HubSpot
+                console.log("Datos enviados a HubSpot:", hsData);
+                
+                // Código real para HubSpot (comentado)
+                /*
+                var xhr = new XMLHttpRequest();
+                var url = "https://api.hsforms.com/submissions/v3/integration/submit/PORTAL_ID/FORM_ID";
+                xhr.open("POST", url);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.send(JSON.stringify(hsData));
+                */
+            }
+            
+            // Enviar datos a HubSpot
+            submitToHubSpot();
+        });
+    </script>
+</body>
+</html> 
