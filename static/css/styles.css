@@ -136,4 +136,111 @@ footer {
 
 .welltech-gradient {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-} 
+}
+
+/* Botón flotante de WhatsApp */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 20px;
+    left: 20px;
+    background-color: #25d366;
+    color: #FFF;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 30px;
+    box-shadow: 2px 2px 3px #999;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse-whatsapp 2s infinite;
+}
+
+.whatsapp-float:hover {
+    background-color: #128c7e;
+    color: #FFF;
+    text-decoration: none;
+    transform: scale(1.1);
+}
+
+.whatsapp-float i {
+    margin-top: 2px;
+}
+
+@keyframes pulse-whatsapp {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+    }
+}
+
+/* Tooltip para el botón */
+.whatsapp-float::before {
+    content: "¿Necesitas asesoría nutricional?";
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.whatsapp-float::after {
+    content: "";
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-left-color: #333;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.whatsapp-float:hover::before,
+.whatsapp-float:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    .whatsapp-float::before {
+        content: "Asesoría nutricional";
+        right: 60px;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+    
+    .whatsapp-float::after {
+        right: 50px;
+        border-width: 5px;
+    }
+}

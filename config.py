@@ -56,7 +56,7 @@ class Config:
     APP_NAME = 'WellTechFlow - VitalScan'
     COMPANY_NAME = 'WellTechFlow'
     CONTACT_EMAIL = os.environ.get('CONTACT_EMAIL', 'contacto@welltechflow.com')
-    CONTACT_PHONE = os.environ.get('CONTACT_PHONE', '+1234567890')
+    CONTACT_PHONE = os.environ.get('CONTACT_PHONE', '+593967080644')
     
     # URLs de redes sociales
     SOCIAL_FACEBOOK = os.environ.get('SOCIAL_FACEBOOK', 'https://facebook.com/welltechflow')
@@ -69,6 +69,23 @@ class Config:
     BRAND_PRIMARY_COLOR = '#2ecc71'  # Verde esmeralda
     BRAND_SECONDARY_COLOR = '#3498db'  # Azul tecnológico
     BRAND_TAGLINE = 'Transformando el bienestar a través de la tecnología'
+    
+    # Configuración de WhatsApp
+    WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER', '+593967080644')
+    WHATSAPP_MESSAGE_TEMPLATE = """¡Hola! 👋
+
+Me interesa conocer más sobre sus servicios de asesoría nutricional y productos Herbalife.
+
+He visto su plataforma WellTechFlow y me gustaría recibir información personalizada sobre:
+
+🌿 Productos Herbalife disponibles
+📋 Planes de nutrición personalizados
+💪 Programas de bienestar integral
+📞 Consultas nutricionales
+
+¿Podrían ayudarme con información detallada?
+
+¡Gracias! 😊"""
     
     @staticmethod
     def init_app(app):

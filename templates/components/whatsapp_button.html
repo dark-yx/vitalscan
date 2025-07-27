@@ -1,0 +1,52 @@
+<!-- Botón flotante de WhatsApp -->
+<a href="javascript:void(0);" 
+   class="whatsapp-float" 
+   id="whatsapp-button"
+   title="Contactar por WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const whatsappButton = document.getElementById('whatsapp-button');
+    
+    // Configuración del WhatsApp con número actualizado
+    const whatsappConfig = {
+        number: '+593967080644', // Número actualizado
+        message: `¡Hola! 👋
+
+Me interesa conocer más sobre sus servicios de asesoría nutricional y productos Herbalife.
+
+He visto su plataforma WellTechFlow y me gustaría recibir información personalizada sobre:
+
+🌿 Productos Herbalife disponibles
+📋 Planes de nutrición personalizados  
+💪 Programas de bienestar integral
+📞 Consultas nutricionales
+
+¿Podrían ayudarme con información detallada?
+
+¡Gracias! 😊`
+    };
+    
+    whatsappButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Crear URL de WhatsApp
+        const encodedMessage = encodeURIComponent(whatsappConfig.message);
+        const whatsappUrl = `https://wa.me/${whatsappConfig.number.replace(/[^0-9]/g, '')}?text=${encodedMessage}`;
+        
+        // Abrir en nueva pestaña
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        
+        // Analytics opcional (si tienes Google Analytics)
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'click', {
+                'event_category': 'WhatsApp',
+                'event_label': 'Botón Flotante',
+                'value': 1
+            });
+        }
+    });
+});
+</script>
