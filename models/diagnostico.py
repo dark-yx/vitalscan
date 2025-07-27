@@ -58,8 +58,8 @@ class Diagnostico:
         self.comentarios = form_data.get('comentarios', '') or form_data.get('observaciones', '')
         
         # Datos de encuestador
-        self.nombre_encuestador = form_data.get('nombre_encuestador', '')
-        self.encuestador_id = form_data.get('encuestador_id', '')
+        self.nombre_encuestador = form_data.get('nombre_encuestador', 'Encuestador por Defecto')
+        self.encuestador_id = form_data.get('encuestador_id', 'default')
         
         # Almacenar datos brutos para procesamiento
         self.form_data = form_data
@@ -89,6 +89,10 @@ class Diagnostico:
             dict: Diagnóstico generado con recomendaciones.
         """
         try:
+            # Validar la conexión con OpenAI
+            if not Config.OPENAI_API_KEY:
+                raise ValueError("No se ha configurado la API key de OpenAI")
+            
             # Preparar prompt para OpenAI según el nuevo formato
             prompt_diagnostico = self._preparar_prompt_diagnostico()
             prompt_recomendaciones = None  # Se preparará después de obtener el diagnóstico
@@ -110,7 +114,10 @@ class Diagnostico:
                 # Por ahora, usar el método tradicional
             
             # Llamar a la API de OpenAI con el nuevo formato (>=1.0.0)
-            client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+            client = openai.OpenAI(
+                api_key=Config.OPENAI_API_KEY,
+                base_url="https://api.openai.com/v1"
+            )
             
             # 1. Generar diagnóstico
             start_time = time.time()
