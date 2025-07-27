@@ -55,3 +55,14 @@ instance/
 .Trashes
 ehthumbs.db
 Thumbs.db 
+
+# Archivos de certificados
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.cer
+*.p7b
+*.p7s
+PeGuHerbAI.pem
